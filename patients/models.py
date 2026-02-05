@@ -1,6 +1,36 @@
 from django.db import models
 from core.models import Clinic
 
+UF_CHOICES = [
+    ("AC", "Acre"),
+    ("AL", "Alagoas"),
+    ("AP", "Amapá"),
+    ("AM", "Amazonas"),
+    ("BA", "Bahia"),
+    ("CE", "Ceará"),
+    ("DF", "Distrito Federal"),
+    ("ES", "Espírito Santo"),
+    ("GO", "Goiás"),
+    ("MA", "Maranhão"),
+    ("MT", "Mato Grosso"),
+    ("MS", "Mato Grosso do Sul"),
+    ("MG", "Minas Gerais"),
+    ("PA", "Pará"),
+    ("PB", "Paraíba"),
+    ("PR", "Paraná"),
+    ("PE", "Pernambuco"),
+    ("PI", "Piauí"),
+    ("RJ", "Rio de Janeiro"),
+    ("RN", "Rio Grande do Norte"),
+    ("RS", "Rio Grande do Sul"),
+    ("RO", "Rondônia"),
+    ("RR", "Roraima"),
+    ("SC", "Santa Catarina"),
+    ("SP", "São Paulo"),
+    ("SE", "Sergipe"),
+    ("TO", "Tocantins"),
+]
+
 
 class Patient(models.Model):
     clinic = models.ForeignKey(
@@ -26,9 +56,9 @@ class Patient(models.Model):
     birth_date = models.DateField("Data de nascimento", null=True, blank=True)
 
     # Contato
-    mobile_phone = models.CharField("Celular", max_length=20, blank=True)
+    whatsapp_phone = models.CharField("WhatsApp", max_length=20, blank=True)
     email = models.EmailField("Email", blank=True)
-    landline_phone = models.CharField("Telefone fixo", max_length=20, blank=True)
+    extra_phone = models.CharField("Telefone extra", max_length=20, blank=True)
 
     # Dados gerais
     how_knew_clinic = models.CharField("Como conheceu a clínica", max_length=80, blank=True)
