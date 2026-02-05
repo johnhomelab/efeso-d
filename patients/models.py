@@ -1,70 +1,94 @@
 from django.db import models
+from core.models import Clinic
 
-class Paciente(models.Model):
-    # --- OPÇÕES DE SELEÇÃO (Listas para os campos de escolha) ---
-    SEXO_CHOICES = [
-        ('M', 'Masculino'),
-        ('F', 'Feminino'),
-        ('O', 'Outro'),
-    ]
-    
-    LEMBRETES_CHOICES = [
-        ('whatsapp', 'WhatsApp'),
-        ('sms', 'SMS'),
-        ('email', 'Email'),
-        ('nao_enviar', 'Não enviar'),
-    ]
 
-    # --- DADOS PESSOAIS ---
-    nome_completo = models.CharField(max_length=255)
-    celular = models.CharField(max_length=20, help_text="Formato: +55 (DDD) 9...")
-    telefone_fixo = models.CharField(max_length=20, blank=True, null=True)
-    email = models.EmailField(blank=True, null=True)
-    
-    lembretes_automaticos = models.CharField(
-        max_length=20, 
-        choices=LEMBRETES_CHOICES, 
-        default='whatsapp'
+class Patient(models.Model):
+    clinic = models.ForeignKey(
+        Clinic,
+        on_delete=models.PROTECT,
+        related_name="patients",
+        verbose_name="Clínica",
     )
-    
-    como_conheceu = models.CharField(max_length=100, blank=True, null=True)
-    profissao = models.CharField(max_length=100, blank=True, null=True)
-    genero = models.CharField(max_length=1, choices=SEXO_CHOICES, blank=True, null=True)
-    paciente_estrangeiro = models.BooleanField(default=False)
-    
-    data_nascimento = models.DateField(blank=True, null=True)
-    cpf = models.CharField(max_length=14, unique=True, blank=True, null=True)
-    rg = models.CharField(max_length=20, blank=True, null=True)
-    
-    observacoes = models.TextField(blank=True, null=True, verbose_name="Adicionar observações")
-    categoria = models.CharField(max_length=100, blank=True, null=True, help_text="Ex: Particular, Convênio, VIP")
 
-    # --- CONTATO DE EMERGÊNCIA ---
-    emergencia_nome = models.CharField(max_length=100, blank=True, null=True, verbose_name="Nome (Emergência)")
-    emergencia_telefone = models.CharField(max_length=20, blank=True, null=True)
+    # Identificação
+    full_name = models.CharField("Nome completo", max_length=150)
+    gender = models.CharField(
+        "Gênero",
+        max_length=20,
+        blank=True,
+        choices=[
+            ("male", "Masculino"),
+            ("female", "Feminino"),
+            ("other", "Outro"),
+            ("na", "Prefiro não informar"),
+        ],
+    )
+    birth_date = models.DateField("Data de nascimento", null=True, blank=True)
 
-    # --- ENDEREÇO ---
-    cep = models.CharField(max_length=9, blank=True, null=True)
-    endereco = models.CharField(max_length=255, blank=True, null=True, verbose_name="Endereço com número")
-    complemento = models.CharField(max_length=100, blank=True, null=True)
-    bairro = models.CharField(max_length=100, blank=True, null=True)
-    cidade = models.CharField(max_length=100, blank=True, null=True)
-    estado = models.CharField(max_length=2, blank=True, null=True) # Ex: BA
+    # Contato
+    mobile_phone = models.CharField("Celular", max_length=20, blank=True)
+    email = models.EmailField("Email", blank=True)
+    landline_phone = models.CharField("Telefone fixo", max_length=20, blank=True)
 
-    # --- RESPONSÁVEL (Para menores de idade) ---
-    responsavel_nome = models.CharField(max_length=100, blank=True, null=True)
-    responsavel_cpf = models.CharField(max_length=14, blank=True, null=True)
-    responsavel_nascimento = models.DateField(blank=True, null=True)
+    # Dados gerais
+    how_knew_clinic = models.CharField("Como conheceu a clínica", max_length=80, blank=True)
+    profession = models.CharField("Profissão", max_length=80, blank=True)
+    is_foreigner = models.BooleanField("Paciente estrangeiro", default=False)
 
-    # --- DADOS DO CONVÊNIO ---
-    convenio_nome = models.CharField(max_length=100, default='Particular')
-    convenio_titular = models.CharField(max_length=100, blank=True, null=True)
-    convenio_carteirinha = models.CharField(max_length=50, blank=True, null=True)
-    convenio_cpf_responsavel = models.CharField(max_length=14, blank=True, null=True)
+    # Documentos
+    cpf = models.CharField("CPF", max_length=14, blank=True)
+    rg = models.CharField("RG", max_length=20, blank=True)
 
-    # Campos automáticos do sistema (não aparecem no formulário)
-    data_cadastro = models.DateTimeField(auto_now_add=True)
-    ativo = models.BooleanField(default=True)
+    # Observações / categorias
+    notes = models.TextField("Observações", blank=True)
+    categories = models.CharField("Categorias", max_length=200, blank=True)
 
-    def __str__(self):
-        return self.nome_completo
+    # Contato de emergência
+    emergency_contact_name = models.CharField("Nome (emergência)", max_length=120, blank=True)
+    emergency_contact_phone = models.CharField("Telefone (emergência)", max_length=20, blank=True)
+
+    # Endereço
+    cep = models.CharField("CEP", max_length=10, blank=True)
+    address_line = models.CharField("Endereço", max_length=180, blank=True)
+    address_number = models.CharField("Número", max_length=20, blank=True)
+    address_complement = models.CharField("Complemento", max_length=80, blank=True)
+    neighborhood = models.CharField("Bairro", max_length=80, blank=True)
+    city = models.CharField("Cidade", max_length=80, blank=True)
+    state = models.CharField("Estado", max_length=2, blank=True)
+
+    # Responsável (para menores)
+    guardian_name = models.CharField("Nome do responsável", max_length=150, blank=True)
+    guardian_cpf = models.CharField("CPF do responsável", max_length=14, blank=True)
+    guardian_birth_date = models.DateField("Nascimento do responsável", null=True, blank=True)
+
+    # Convênio
+    insurance_name = models.CharField("Convênio", max_length=120, blank=True, default="Particular")
+    insurance_holder_name = models.CharField("Titular do convênio", max_length=150, blank=True)
+    insurance_card_number = models.CharField("Número da carteirinha", max_length=50, blank=True)
+    insurance_guardian_cpf = models.CharField("CPF do responsável (convênio)", max_length=14, blank=True)
+
+    # Auditoria simples
+    created_at = models.DateTimeField("Criado em", auto_now_add=True)
+    updated_at = models.DateTimeField("Atualizado em", auto_now=True)
+
+    class Meta:
+        verbose_name = "Paciente"
+        verbose_name_plural = "Pacientes"
+        ordering = ["full_name"]
+        indexes = [
+            models.Index(fields=["clinic", "full_name"]),
+            models.Index(fields=["clinic", "mobile_phone"]),
+            models.Index(fields=["clinic", "cpf"]),
+        ]
+        constraints = [
+            # CPF não pode ser "globalmente único" num SaaS.
+            # Aqui garantimos unicidade por clínica, mas só quando CPF estiver preenchido.
+            models.UniqueConstraint(
+                fields=["clinic", "cpf"],
+                name="uniq_patient_cpf_per_clinic",
+                condition=~models.Q(cpf=""),
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.full_name} ({self.clinic})"
