@@ -1,15 +1,19 @@
+version: "3.8"
+
 services:
   web:
-    build: .
+    image: 192.168.0.221:5000/efeso-web:dev
     env_file:
       - .env
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/app
-    ports:
-      - "8000:8000"
+      - /opt/efeso-d:/app   # ajuste para o caminho real no servidor (Swarm: volume bind precisa existir no node)
     networks:
       - app
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
 networks:
   app:
