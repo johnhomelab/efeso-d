@@ -1,5 +1,6 @@
 from django.db import models
 from core.models import Clinic
+from .validators import validate_cpf
 
 UF_CHOICES = [
     ("AC", "Acre"),
@@ -66,7 +67,8 @@ class Patient(models.Model):
     is_foreigner = models.BooleanField("Paciente estrangeiro", default=False)
 
     # Documentos
-    cpf = models.CharField("CPF", max_length=14, blank=True)
+    cpf = models.CharField("CPF", max_length=14, blank=True,
+validators=[validate_cpf]) 
     rg = models.CharField("RG", max_length=20, blank=True)
 
     # Observações / categorias
