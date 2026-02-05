@@ -6,6 +6,7 @@ ENV PYTHONUNBUFFERED=1
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
+    netcat-openbsd \
   && rm -rf /var/lib/apt/lists/*
 
 # 3. Define a pasta de trabalho
@@ -18,5 +19,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 5. Copia o seu código para dentro da imagem
 COPY . .
 EXPOSE 8000
-# 6. Comando para iniciar o servidor
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+# 6. Entrypoint e comando
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["gunicorn", "efeso.wsgi:application", "--bind", "0.0.0.0:8000"]
