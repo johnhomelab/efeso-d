@@ -84,7 +84,8 @@ class Patient(models.Model):
     address_complement = models.CharField("Complemento", max_length=80, blank=True)
     neighborhood = models.CharField("Bairro", max_length=80, blank=True)
     city = models.CharField("Cidade", max_length=80, blank=True)
-    state = models.CharField("Estado", max_length=2, blank=True)
+    state = models.CharField("Estado", max_length=2, blank=True, 
+choices=UF_CHOICES )
 
     # Responsável (para menores)
     guardian_name = models.CharField("Nome do responsável", max_length=150, blank=True)
