@@ -108,7 +108,7 @@ choices=UF_CHOICES )
         ordering = ["full_name"]
         indexes = [
             models.Index(fields=["clinic", "full_name"]),
-            models.Index(fields=["clinic", "mobile_phone"]),
+            models.Index(fields=["clinic", "whatsapp_phone"]),
             models.Index(fields=["clinic", "cpf"]),
         ]
         constraints = [
