@@ -18,5 +18,11 @@ python manage.py migrate
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
+# Prevent runserver
+if echo "$@" | grep -q "runserver"; then
+    echo "Error: 'runserver' is disabled. Use 'gunicorn' or another production server."
+    exit 1
+fi
+
 # Execute the passed command (e.g., gunicorn)
 exec "$@"

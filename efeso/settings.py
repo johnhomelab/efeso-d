@@ -49,16 +49,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "efeso.wsgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB", "efeso"),
-        "USER": os.getenv("POSTGRES_USER", "efeso"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "efeso"),
-        "HOST": os.getenv("POSTGRES_HOST", "db"),
-        "PORT": os.getenv("POSTGRES_PORT", "5432"),
+if os.getenv("USE_SQLITE") == "1":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("POSTGRES_DB", "efeso"),
+            "USER": os.getenv("POSTGRES_USER", "efeso"),
+            "PASSWORD": os.getenv("POSTGRES_PASSWORD", "efeso"),
+            "HOST": os.getenv("POSTGRES_HOST", "db"),
+            "PORT": os.getenv("POSTGRES_PORT", "5432"),
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},

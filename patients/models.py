@@ -34,6 +34,14 @@ UF_CHOICES = [
 
 
 class Patient(models.Model):
+    """
+    Patient model representing a person receiving care.
+
+    TENANCY NOTE:
+    - Strictly scoped to a Clinic via the 'clinic' ForeignKey.
+    - All queries for Patients MUST filter by .filter(clinic=current_clinic).
+    - Uniqueness constraints (like CPF) are enforced per-clinic, not globally.
+    """
     clinic = models.ForeignKey(
         Clinic,
         on_delete=models.PROTECT,

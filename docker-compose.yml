@@ -5,7 +5,6 @@ services:
     image: 192.168.0.221:5000/efeso-web:dev
     env_file:
       - .env
-    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - /opt/efeso-d:/app   # ajuste para o caminho real no servidor (Swarm: volume bind precisa existir no node)
     networks:
