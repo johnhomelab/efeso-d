@@ -1,5 +1,5 @@
 import os
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth import get_user_model
 from core.models import Clinic
 
@@ -27,11 +27,19 @@ class Command(BaseCommand):
         User = get_user_model()
         username = os.getenv("DJANGO_SUPERUSER_USERNAME", "admin")
         email = os.getenv("DJANGO_SUPERUSER_EMAIL", "admin@example.com")
-        password = os.getenv("DJANGO_SUPERUSER_PASSWORD", "admin")
+        password = os.getenv("DJANGO_SUPERUSER_PASSWORD")
 
-        if not User.objects.filter(username=username).exists():
+        if not password:
+             raise CommandError("DJANGO_SUPERUSER_PASSWORD environment variable is missing. Cannot create superuser.")
+
+        user = User.objects.filter(username=username).first()
+
+        if not user:
             print(f"Creating superuser '{username}'...")
             User.objects.create_superuser(username, email, password)
             self.stdout.write(self.style.SUCCESS(f"Created superuser: {username}"))
         else:
-            self.stdout.write(f"Superuser '{username}' already exists.")
+            if user.is_superuser:
+                self.stdout.write(f"Superuser '{username}' already exists.")
+            else:
+                 raise CommandError(f"User '{username}' exists but is not a superuser. Please fix manually.")
