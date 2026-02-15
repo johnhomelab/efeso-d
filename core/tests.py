@@ -51,3 +51,9 @@ class CreateInitialTenantTest(TestCase):
         with self.assertRaises(CommandError) as cm:
              call_command('create_initial_tenant')
         self.assertIn("User 'admin' exists but is not a superuser", str(cm.exception))
+
+class ClinicModelTest(TestCase):
+    def test_clinic_str(self):
+        """Test that the string representation of a Clinic is its name."""
+        clinic = Clinic.objects.create(name="Test Clinic", slug="test-clinic")
+        self.assertEqual(str(clinic), "Test Clinic")
