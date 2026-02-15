@@ -35,7 +35,7 @@ class Command(BaseCommand):
         user = User.objects.filter(username=username).first()
 
         if not user:
-            print(f"Creating superuser '{username}'...")
+            self.stdout.write(f"Creating superuser '{username}'...")
             User.objects.create_superuser(username, email, password)
             self.stdout.write(self.style.SUCCESS(f"Created superuser: {username}"))
         else:
