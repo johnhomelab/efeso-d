@@ -6,6 +6,7 @@ from .models import Patient
 @admin.register(Patient)
 class PatientAdmin(admin.ModelAdmin):
     list_display = ("full_name", "clinic", "whatsapp_phone", "cpf", "created_at")
+    list_select_related = ("clinic",)
     list_filter = ("clinic", "gender")
     search_fields = ("full_name", "whatsapp_phone", "cpf", "email")
     ordering = ("full_name",)
