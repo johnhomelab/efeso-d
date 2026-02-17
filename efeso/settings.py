@@ -68,6 +68,7 @@ else:
             "PASSWORD": os.getenv("POSTGRES_PASSWORD", "efeso"),
             "HOST": os.getenv("POSTGRES_HOST", "db"),
             "PORT": os.getenv("POSTGRES_PORT", "5432"),
+            "CONN_MAX_AGE": int(os.getenv("CONN_MAX_AGE", 600)),
         }
     }
 
