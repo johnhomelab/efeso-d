@@ -1,3 +1,4 @@
+import re
 from django.db import models
 from core.models import Clinic
 from .validators import validate_cpf
@@ -130,6 +131,16 @@ choices=UF_CHOICES )
                 condition=~models.Q(cpf=""),
             )
         ]
+
+    def clean(self):
+        if self.cpf:
+            self.cpf = re.sub(r"\D", "", self.cpf)
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        if self.cpf:
+            self.cpf = re.sub(r"\D", "", self.cpf)
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return f"{self.full_name} ({self.clinic})"

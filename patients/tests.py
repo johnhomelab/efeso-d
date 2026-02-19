@@ -1,5 +1,8 @@
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
 from django.core.exceptions import ValidationError
+from django.db.utils import IntegrityError
+from core.models import Clinic
+from patients.models import Patient
 from patients.validators import validate_cpf
 
 class TestCPFValidator(SimpleTestCase):
@@ -60,3 +63,53 @@ class TestCPFValidator(SimpleTestCase):
         # 111444777-35 is valid, so 111444777-36 should be invalid
         with self.assertRaisesRegex(ValidationError, "CPF inválido."):
             validate_cpf("11144477736")
+
+class TestPatientModel(TestCase):
+    def setUp(self):
+        self.clinic = Clinic.objects.create(name="Test Clinic", slug="test-clinic")
+
+    def test_cpf_normalization_save(self):
+        """Values should be normalized (digits only) when saving."""
+        # 123.456.789-09 -> 12345678909 is a valid CPF for validate-docbr
+        p = Patient(
+            clinic=self.clinic,
+            full_name="John Doe",
+            cpf="123.456.789-09"
+        )
+        p.save()
+        p.refresh_from_db()
+        self.assertEqual(p.cpf, "12345678909")
+
+    def test_cpf_uniqueness(self):
+        """Uniqueness should be enforced on normalized values."""
+        Patient.objects.create(
+            clinic=self.clinic,
+            full_name="John Doe",
+            cpf="123.456.789-09"
+        )
+
+        # Second patient with same CPF digits, different format
+        p2 = Patient(
+            clinic=self.clinic,
+            full_name="Jane Doe",
+            cpf="12345678909"
+        )
+        with self.assertRaises(IntegrityError):
+            p2.save()
+
+    def test_blank_cpf_allowed(self):
+        """Blank CPF should be allowed and not normalized to something else."""
+        p = Patient.objects.create(
+            clinic=self.clinic,
+            full_name="No CPF",
+            cpf=""
+        )
+        self.assertEqual(p.cpf, "")
+
+        # Should allow multiple blank CPFs (unique constraint has condition)
+        p2 = Patient.objects.create(
+            clinic=self.clinic,
+            full_name="No CPF 2",
+            cpf=""
+        )
+        self.assertEqual(p2.cpf, "")
