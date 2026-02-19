@@ -175,6 +175,29 @@
       }
       .container{ padding: 16px; }
     }
+
+    /* Tema manual via data-theme */
+  html[data-theme="light"]{
+    --bg: #f6f6f7;
+    --panel: #ffffff;
+    --panel-2: #fbfbfc;
+    --text: #141417;
+    --muted: #54545b;
+    --gold: #b8962e;
+    --border: #e6e6ea;
+    --shadow: 0 10px 30px rgba(0,0,0,.08);
+  }
+
+  html[data-theme="dark"]{
+    --bg: #0b0b0c;
+    --panel: #121214;
+    --panel-2: #17171a;
+    --text: #f5f5f5;
+    --muted: #b5b5b5;
+    --gold: #d4af37;
+    --border: #242428;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
   </style>
 </head>
 
@@ -215,6 +238,11 @@
           <div class="page-title">{% block page_title %}Dashboard{% endblock %}</div>
         </div>
         <div class="topbar-right">
+          <button id="themeToggle"
+  style="border:1px solid var(--border); background:var(--panel-2);
+         color:var(--text); border-radius:10px; padding:6px 10px; cursor:pointer;">
+  🌙
+</button>
           <span class="muted">Clínica</span>
           <span style="color: var(--gold); font-weight: 650;">IPRO</span>
         </div>
@@ -225,5 +253,35 @@
       </main>
     </section>
   </div>
+  <script>
+(function(){
+  const storageKey = "efeso-theme";
+  const html = document.documentElement;
+  const btn = document.getElementById("themeToggle");
+
+  function applyTheme(theme){
+    if(theme){
+      html.setAttribute("data-theme", theme);
+      localStorage.setItem(storageKey, theme);
+      btn.textContent = theme === "dark" ? "🌙" : "☀️";
+    }
+  }
+
+  // Inicialização
+  const saved = localStorage.getItem(storageKey);
+  if(saved){
+    applyTheme(saved);
+  } else {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    applyTheme(prefersDark ? "dark" : "light");
+  }
+
+  // Toggle
+  btn.addEventListener("click", function(){
+    const current = html.getAttribute("data-theme");
+    applyTheme(current === "dark" ? "light" : "dark");
+  });
+})();
+</script>
 </body>
 </html>
