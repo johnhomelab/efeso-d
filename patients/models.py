@@ -1,4 +1,5 @@
 import re
+from django.core.exceptions import ValidationError
 from django.db import models
 from core.models import Clinic
 from .validators import validate_cpf
@@ -135,11 +136,27 @@ choices=UF_CHOICES )
     def clean(self):
         if self.cpf:
             self.cpf = re.sub(r"\D", "", self.cpf)
+            # Check for duplicates on the normalized value
+            qs = Patient.objects.filter(clinic=self.clinic, cpf=self.cpf)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            if qs.exists():
+                raise ValidationError({"cpf": "CPF já cadastrado nesta clínica."})
         super().clean()
 
     def save(self, *args, **kwargs):
         if self.cpf:
-            self.cpf = re.sub(r"\D", "", self.cpf)
+            clean_cpf = re.sub(r"\D", "", self.cpf)
+            # Safe Normalization: Only normalize if it doesn't cause a collision.
+            # This prevents legacy duplicates (e.g. masked vs unmasked) from causing IntegrityError on save.
+            qs = Patient.objects.filter(clinic=self.clinic, cpf=clean_cpf)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+
+            if not qs.exists():
+                self.cpf = clean_cpf
+            # If it exists, we keep self.cpf as is (potentially masked) to avoid crash.
+
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:

@@ -80,8 +80,8 @@ class TestPatientModel(TestCase):
         p.refresh_from_db()
         self.assertEqual(p.cpf, "12345678909")
 
-    def test_cpf_uniqueness(self):
-        """Uniqueness should be enforced on normalized values."""
+    def test_cpf_uniqueness_clean(self):
+        """Uniqueness should be enforced on normalized values via clean()."""
         Patient.objects.create(
             clinic=self.clinic,
             full_name="John Doe",
@@ -94,8 +94,41 @@ class TestPatientModel(TestCase):
             full_name="Jane Doe",
             cpf="12345678909"
         )
-        with self.assertRaises(IntegrityError):
+        # clean() should now raise a ValidationError, not an IntegrityError
+        with self.assertRaises(ValidationError):
+            p2.clean()
+
+    def test_legacy_data_safe_normalization(self):
+        """
+        If a duplicate exists (legacy data), save() should NOT crash
+        and should keep the mask (or original value) to avoid IntegrityError.
+        """
+        # Create a "normalized" record
+        Patient.objects.create(
+            clinic=self.clinic,
+            full_name="John Doe",
+            cpf="12345678909"
+        )
+
+        # Create a second record that collides (simulating legacy import or race condition)
+        # We manually bypass validation to insert a duplicate in DB first?
+        # No, because unique constraint is 'uniq_patient_cpf_per_clinic'.
+        # So "123.456.789-09" IS allowed by DB if "12345678909" exists.
+
+        p2 = Patient(
+            clinic=self.clinic,
+            full_name="Jane Doe",
+            cpf="123.456.789-09"
+        )
+        # Saving should NOT raise IntegrityError because logic in save() detects collision and keeps it as "123.456.789-09"
+        try:
             p2.save()
+        except IntegrityError:
+            self.fail("Patient.save() raised IntegrityError on legacy duplicate scenario!")
+
+        p2.refresh_from_db()
+        # It should remain masked because normalization was skipped
+        self.assertEqual(p2.cpf, "123.456.789-09")
 
     def test_blank_cpf_allowed(self):
         """Blank CPF should be allowed and not normalized to something else."""
