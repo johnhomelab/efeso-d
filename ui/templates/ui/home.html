@@ -1,12 +1,161 @@
 {% extends "ui/base.html" %}
 
-{% block title %}Efeso Dental — Início{% endblock %}
+{% block title %}Efeso Dental — Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h1 style="margin-top: 0; color: var(--gold);">Efeso Dental</h1>
-    <p style="color: var(--text-muted); margin-bottom: 0;">
-        Base do produto carregando com sucesso. Próximo: dashboard + pacientes + toggle dark mode.
-    </p>
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 14px;
+  }
+  .kpi {
+    grid-column: span 3;
+    padding: 16px;
+  }
+  .kpi .label {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .kpi .value {
+    font-size: 26px;
+    font-weight: 800;
+    margin-top: 6px;
+  }
+  .kpi .trend {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .kpi .value span {
+    color: var(--gold);
+  }
+
+  .panel {
+    grid-column: span 6;
+    padding: 16px;
+  }
+  .panel h3 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    letter-spacing: .2px;
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .item {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    background: var(--panel-2);
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .item strong { font-size: 13px; }
+  .item .meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .badge {
+    border: 1px solid rgba(212,175,55,.35);
+    color: var(--gold);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 12px;
+    height: fit-content;
+    white-space: nowrap;
+  }
+
+  .wide { grid-column: span 12; }
+
+  @media (max-width: 1100px) {
+    .kpi { grid-column: span 6; }
+    .panel { grid-column: span 12; }
+  }
+</style>
+
+<div class="grid">
+  <!-- KPIs -->
+  <div class="card kpi">
+    <div class="label">Pacientes cadastrados</div>
+    <div class="value"><span>0</span></div>
+    <div class="trend">Conectado ao banco ✅</div>
+  </div>
+
+  <div class="card kpi">
+    <div class="label">Consultas hoje</div>
+    <div class="value"><span>0</span></div>
+    <div class="trend">Agenda: em breve</div>
+  </div>
+
+  <div class="card kpi">
+    <div class="label">Orçamentos pendentes</div>
+    <div class="value"><span>0</span></div>
+    <div class="trend">Financeiro: em breve</div>
+  </div>
+
+  <div class="card kpi">
+    <div class="label">Mensagens WhatsApp</div>
+    <div class="value"><span>0</span></div>
+    <div class="trend">Integração: em breve</div>
+  </div>
+
+  <!-- Painel: Próximos passos -->
+  <div class="card panel">
+    <h3>Próximos passos</h3>
+    <div class="list">
+      <div class="item">
+        <div>
+          <strong>Listagem de Pacientes</strong>
+          <div class="meta">Tela + CRUD básico (nome, cpf, whatsapp, endereço)</div>
+        </div>
+        <span class="badge">prioridade</span>
+      </div>
+      <div class="item">
+        <div>
+          <strong>Modo escuro (toggle)</strong>
+          <div class="meta">Automático + botão manual na topbar</div>
+        </div>
+        <span class="badge">UI</span>
+      </div>
+      <div class="item">
+        <div>
+          <strong>Traefik + domínio</strong>
+          <div class="meta">HTTPS + rota /admin + rota do app</div>
+        </div>
+        <span class="badge">deploy</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Painel: Atalhos -->
+  <div class="card panel">
+    <h3>Atalhos</h3>
+    <div class="list">
+      <div class="item">
+        <div>
+          <strong>Admin do Django</strong>
+          <div class="meta">Gerenciar cadastros pelo painel</div>
+        </div>
+        <span class="badge">/admin</span>
+      </div>
+      <div class="item">
+        <div>
+          <strong>Paciente (detalhe)</strong>
+          <div class="meta">Prontuário, anamnese, odontograma (futuro)</div>
+        </div>
+        <span class="badge">em breve</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rodapé -->
+  <div class="card wide" style="padding: 14px;">
+    <div class="muted" style="font-size: 12px;">
+      Efeso Dental • UI v0 • Paleta preto+dourado • Responsivo ✅
+    </div>
+  </div>
 </div>
 {% endblock %}
